@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  tasks     Task[]
+  habits    Habit[]
+  analytics Analytics[]
+}
+
+model Task {
+  id            String   @id @default(cuid())
+  userId        String
+  title         String
+  description   String?
+  deadline      DateTime?
+  priority      String   @default("Medium") // Critical, High, Medium, Low
+  difficulty    String   @default("Medium") // High, Medium, Low
+  estimatedTime Int?     // in minutes
+  status        String   @default("Pending") // Pending, Completed, Overdue
+  progress      Int      @default(0) // 0-100
+  aiScore       Int?     // Priority score by AI
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiPlans       AIPlan[]
+}
+
+model AIPlan {
+  id               String   @id @default(cuid())
+  taskId           String
+  step             String
+  scheduledTime    DateTime?
+  completionStatus Boolean  @default(false)
+  task             Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model Habit {
+  id             String   @id @default(cuid())
+  userId         String
+  habitName      String
+  streak         Int      @default(0)
+  completedDates String   @default("[]") // JSON string of dates
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Analytics {
+  id                String   @id @default(cuid())
+  userId            String
+  date              DateTime @default(now())
+  productivityScore Int      @default(0)
+  completedTasks    Int      @default(0)
+  missedTasks       Int      @default(0)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
