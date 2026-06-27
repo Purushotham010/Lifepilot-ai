@@ -6,6 +6,13 @@ import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import VoiceCoach from '../components/features/VoiceCoach';
 
+import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { app } from '../lib/firestore'; // Import app from firestore
+
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+provider.addScope('https://www.googleapis.com/auth/calendar');
+
 export default function Dashboard() {
   const { user } = useAuth();
   const [data, setData] = useState<any>(null);
@@ -72,22 +79,6 @@ export default function Dashboard() {
           <button
             onClick={async () => {
               try {
-                // Using Firebase to obtain OAuth token
-                const { initializeApp } = await import('firebase/app');
-                const { getAuth, signInWithPopup, GoogleAuthProvider } = await import('firebase/auth');
-                
-                const firebaseConfig = {
-                  projectId: "wide-benefit-hgxqk",
-                  appId: "1:685261692083:web:d8f9d09b06cee343bda4c6",
-                  apiKey: "AIzaSyB2H8sTySJtAEW-aVyXvL5Xt4uuVN0x1ZI",
-                  authDomain: "wide-benefit-hgxqk.firebaseapp.com"
-                };
-                
-                const app = initializeApp(firebaseConfig);
-                const auth = getAuth(app);
-                const provider = new GoogleAuthProvider();
-                provider.addScope('https://www.googleapis.com/auth/calendar');
-                
                 const result = await signInWithPopup(auth, provider);
                 const credential = GoogleAuthProvider.credentialFromResult(result);
                 if (credential?.accessToken) {

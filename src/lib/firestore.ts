@@ -14,19 +14,15 @@ import {
   writeBatch,
   arrayUnion
 } from 'firebase/firestore';
-import fs from 'fs';
-import path from 'path';
 
-let firebaseConfig: any = {};
-try {
-  const configFile = fs.readFileSync(path.join(process.cwd(), 'firebase-applet-config.json'), 'utf8');
-  firebaseConfig = JSON.parse(configFile);
-} catch (e) {
-  console.error("Failed to read firebase config", e);
-}
+// In a Vite environment, we can import JSON directly.
+// We must use a try/catch or default value if it doesn't exist, but Vite handles JSON imports.
+import firebaseConfigData from '../../firebase-applet-config.json';
+
+const firebaseConfig = firebaseConfigData as any || {};
 
 // Initialize Web SDK
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const databaseId = firebaseConfig.firestoreDatabaseId || "(default)";
 export const db = getFirestore(app, databaseId);
 

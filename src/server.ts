@@ -212,8 +212,8 @@ async function generateGeminiContentWithRetry(params: {
 }) {
   if (!ai) throw new Error('Gemini API not configured');
   
-  // We prioritize gemini-1.5-flash and fallback to gemini-1.5-flash-8b if overloaded
-  const modelsToTry = ['gemini-1.5-flash', 'gemini-1.5-flash-8b'];
+  // We prioritize gemini-3.5-flash and fallback to gemini-3.1-flash-lite if overloaded
+  const modelsToTry = ['gemini-3.5-flash', 'gemini-3.1-flash-lite'];
   let lastError: any = null;
   
   for (const model of modelsToTry) {

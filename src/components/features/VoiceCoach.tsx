@@ -56,7 +56,7 @@ export default function VoiceCoach({ isOpen, onClose, task }: VoiceCoachProps) {
           
           if (audioChunksRef.current.length === 0) return;
           
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType || 'audio/webm' });
           audioChunksRef.current = [];
           
           setIsProcessing(true);
