@@ -28,3 +28,38 @@ export const fetchAPI = async (endpoint: string, options: RequestInit = {}) => {
 
   return response.json();
 };
+
+export const fetchAudio = async (endpoint: string, options: RequestInit = {}) => {
+  const token = getAuthToken();
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+
+  const response = await fetch(`/api${endpoint}`, {
+    ...options,
+    headers: { ...headers, ...options.headers }
+  });
+
+  if (!response.ok) throw new Error('Audio request failed');
+  return response.blob();
+};
+
+export const uploadAudio = async (endpoint: string, file: Blob) => {
+  const token = getAuthToken();
+  const formData = new FormData();
+  formData.append('audio', file);
+  
+  const headers: HeadersInit = {
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+
+  const response = await fetch(`/api${endpoint}`, {
+    method: 'POST',
+    body: formData,
+    headers
+  });
+
+  if (!response.ok) throw new Error('Audio upload failed');
+  return response.json();
+};

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchAPI } from '../lib/api';
-import { Plus, Sparkles, Loader2, Calendar, Target, Clock, AlertCircle, CheckSquare, ShieldAlert, AlertTriangle, Flame, Mic, MicOff } from 'lucide-react';
+import { Plus, Sparkles, Loader2, Calendar, Target, Clock, AlertCircle, CheckSquare, ShieldAlert, AlertTriangle, Flame, Mic, MicOff, PhoneCall, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import VoiceCoach from '../components/features/VoiceCoach';
+import SimulatorModal from '../components/features/SimulatorModal';
 
 export default function Tasks() {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -16,6 +18,30 @@ export default function Tasks() {
   
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
+  
+  const [voiceCoachOpen, setVoiceCoachOpen] = useState(false);
+  const [voiceCoachTask, setVoiceCoachTask] = useState<any | null>(null);
+
+  const [simulatorOpen, setSimulatorOpen] = useState(false);
+  const [simulatorTask, setSimulatorTask] = useState<any | null>(null);
+
+  const [activeReason, setActiveReason] = useState<{taskId: string, type: string} | null>(null);
+  const [thinkingText, setThinkingText] = useState('Thinking...');
+
+  const toggleReason = (taskId: string, type: string) => {
+    if (activeReason?.taskId === taskId && activeReason.type === type) {
+      setActiveReason(null);
+    } else {
+      setActiveReason({taskId, type});
+    }
+  };
+
+  const simulateThinking = async (phases: string[], durationPerPhase: number = 600) => {
+    for (const phase of phases) {
+      setThinkingText(phase);
+      await new Promise(r => setTimeout(r, durationPerPhase));
+    }
+  };
 
   useEffect(() => {
     loadTasks();
@@ -98,6 +124,13 @@ export default function Tasks() {
     if (!aiInput.trim()) return;
     setAnalyzing(true);
     try {
+      simulateThinking([
+        "Analyzing semantics...",
+        "Estimating effort...",
+        "Assigning priority...",
+        "Finalizing schema..."
+      ], 800);
+      
       const analyzed = await fetchAPI('/ai/analyze-task', {
         method: 'POST',
         body: JSON.stringify({ text: aiInput })
@@ -109,8 +142,10 @@ export default function Tasks() {
           title: analyzed.title || 'Untitled Task',
           description: analyzed.description || '',
           priority: analyzed.priority || 'Medium',
+          priorityReason: analyzed.priorityReason || '',
           difficulty: analyzed.difficulty || 'Medium',
           estimatedTime: analyzed.estimatedTime || 60,
+          timeReason: analyzed.timeReason || '',
           deadline: analyzed.deadline ? new Date(analyzed.deadline).toISOString() : null
         })
       });
@@ -257,9 +292,14 @@ export default function Tasks() {
           <button 
             type="submit" 
             disabled={analyzing || !aiInput.trim()}
-            className="px-6 py-3 bg-bright-teal text-deep-space-violet font-medium rounded-lg disabled:opacity-50 hover:bg-bright-teal/90 transition-colors shadow-none"
+            className="px-6 py-3 bg-bright-teal text-deep-space-violet font-medium rounded-lg disabled:opacity-50 hover:bg-bright-teal/90 transition-colors flex items-center justify-center gap-2 min-w-[140px]"
           >
-            {analyzing ? <Loader2 className="w-5 h-5 animate-spin mx-auto text-deep-space-violet" /> : 'Analyze & Add'}
+            {analyzing ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span className="text-sm">{thinkingText}</span>
+              </>
+            ) : 'Analyze & Add'}
           </button>
         </form>
       </div>
@@ -279,12 +319,24 @@ export default function Tasks() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
                     <h3 className={`text-lg font-semibold ${task.status === 'Completed' ? 'line-through text-slate-500' : 'text-off-white'}`}>{task.title}</h3>
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border
-                      ${task.priority === 'Critical' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 
-                        task.priority === 'High' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 
-                        'bg-rich-violet/30 text-slate-300 border border-rich-violet/60'}`}>
-                      {task.priority}
-                    </span>
+                    
+                    {/* PRIORITY BADGE */}
+                    <div className="relative">
+                      <button 
+                        onClick={() => toggleReason(task.id, 'priority')}
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity
+                        ${task.priority === 'Critical' ? 'bg-rose-500/10 text-rose-400 border-rose-500/20' : 
+                          task.priority === 'High' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' : 
+                          'bg-rich-violet/30 text-slate-300 border border-rich-violet/60'}`}>
+                        {task.priority}
+                      </button>
+                      {activeReason?.taskId === task.id && activeReason.type === 'priority' && task.priorityReason && (
+                        <div className="absolute top-full left-0 mt-2 w-64 p-3 bg-slate-900 border border-rich-violet/60 rounded-xl z-20 shadow-xl shadow-black/50 text-xs text-slate-300">
+                          <span className="font-bold text-bright-teal block mb-1">AI Reasoning:</span>
+                          {task.priorityReason}
+                        </div>
+                      )}
+                    </div>
                     
                     {/* RISK BADGE */}
                     {task.riskLevel && task.riskLevel !== 'Low' && task.status !== 'Completed' && (
@@ -314,9 +366,19 @@ export default function Tasks() {
                     </div>
                   )}
                   {task.estimatedTime && (
-                    <div className="flex items-center gap-1.5 bg-deep-space-violet/60 px-3 py-1.5 rounded-lg border border-rich-violet/60">
-                      <Clock className="w-4 h-4 text-slate-500" />
-                      {task.estimatedTime}m
+                    <div className="relative">
+                      <button 
+                        onClick={() => toggleReason(task.id, 'time')}
+                        className="flex items-center gap-1.5 bg-deep-space-violet/60 px-3 py-1.5 rounded-lg border border-rich-violet/60 cursor-pointer hover:bg-rich-violet/40 transition-colors">
+                        <Clock className="w-4 h-4 text-slate-500" />
+                        {task.estimatedTime}m
+                      </button>
+                      {activeReason?.taskId === task.id && activeReason.type === 'time' && task.timeReason && (
+                        <div className="absolute top-full right-0 mt-2 w-64 p-3 bg-slate-900 border border-rich-violet/60 rounded-xl z-20 shadow-xl shadow-black/50 text-xs text-slate-300 text-left">
+                          <span className="font-bold text-bright-teal block mb-1">AI Reasoning:</span>
+                          {task.timeReason}
+                        </div>
+                      )}
                     </div>
                   )}
                   <select 
@@ -337,14 +399,38 @@ export default function Tasks() {
                 {/* RESCUE PLAN DISPLAY */}
                 {task.rescuePlan ? (
                   <div className="space-y-3">
-                    <h4 className="text-xs font-semibold uppercase tracking-wider text-rose-400 flex items-center gap-1">
-                      <Flame className="w-3.5 h-3.5" /> Emergency Rescue Plan Active
-                    </h4>
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-rose-400 flex items-center gap-1">
+                        <Flame className="w-3.5 h-3.5" /> Emergency Rescue Plan Active
+                      </h4>
+                      <button
+                        onClick={() => {
+                          setVoiceCoachTask(task);
+                          setVoiceCoachOpen(true);
+                        }}
+                        className="text-xs font-semibold text-bright-teal hover:text-bright-teal/80 flex items-center gap-1.5 border border-bright-teal/30 px-2.5 py-1 rounded-lg bg-bright-teal/10 hover:bg-bright-teal/25 transition cursor-pointer"
+                      >
+                        <PhoneCall className="w-3.5 h-3.5 animate-pulse" />
+                        Live Voice Intercom
+                      </button>
+                    </div>
                     <ul className="space-y-2">
                       {JSON.parse(task.rescuePlan).map((step: any, idx: number) => (
-                        <li key={idx} className="flex items-start text-sm text-rose-100 bg-rose-950/30 px-3 py-2 rounded-lg border border-rose-500/30">
-                          <span className="font-bold text-rose-400 mr-2 shrink-0">{step.timeframe}:</span>
-                          <span>{step.action}</span>
+                        <li key={idx} className="flex flex-col text-sm text-rose-100 bg-rose-950/30 px-4 py-3 rounded-xl border border-rose-500/30 gap-2 relative group">
+                          <div className="flex items-start">
+                            <span className="font-bold text-rose-400 mr-2 shrink-0">{step.timeframe}:</span>
+                            <span className="font-medium text-white">{step.action}</span>
+                          </div>
+                          {(step.reason || step.orderRationale) && (
+                            <div className="pl-0 sm:pl-[4.5rem] mt-1 space-y-1">
+                              {step.reason && (
+                                <p className="text-xs text-rose-200/80"><span className="text-rose-400 font-semibold">Why:</span> {step.reason}</p>
+                              )}
+                              {step.orderRationale && (
+                                <p className="text-xs text-rose-200/80"><span className="text-rose-400 font-semibold">Order:</span> {step.orderRationale}</p>
+                              )}
+                            </div>
+                          )}
                         </li>
                       ))}
                     </ul>
@@ -364,7 +450,7 @@ export default function Tasks() {
                     </ul>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 flex-wrap">
                     <button 
                       onClick={() => handleBreakdown(task.id, task.description || task.title)}
                       disabled={breakingDown === task.id}
@@ -372,6 +458,17 @@ export default function Tasks() {
                     >
                       {breakingDown === task.id ? <Loader2 className="w-4 h-4 animate-spin text-bright-teal" /> : <Sparkles className="w-4 h-4" />}
                       Break down with AI
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setSimulatorTask(task);
+                        setSimulatorOpen(true);
+                      }}
+                      className="text-sm font-medium text-amber-400 hover:text-amber-300 flex items-center gap-1.5 transition-colors border border-amber-500/30 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20"
+                    >
+                      <Activity className="w-4 h-4" />
+                      "What if..." Simulator
                     </button>
 
                     {/* TRIGGER RESCUE PLAN BUTTON */}
@@ -398,6 +495,24 @@ export default function Tasks() {
           </div>
         )}
       </div>
+
+      <VoiceCoach 
+        isOpen={voiceCoachOpen}
+        onClose={() => {
+          setVoiceCoachOpen(false);
+          setVoiceCoachTask(null);
+        }}
+        task={voiceCoachTask}
+      />
+      
+      <SimulatorModal 
+        isOpen={simulatorOpen}
+        onClose={() => {
+          setSimulatorOpen(false);
+          setSimulatorTask(null);
+        }}
+        task={simulatorTask}
+      />
     </div>
   );
 }

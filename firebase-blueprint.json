@@ -1,0 +1,74 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile data",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "password": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "email"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Task data",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "priority": { "type": "string" },
+        "deadline": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "aiPlans": { "type": "array" }
+      },
+      "required": ["userId", "title"]
+    },
+    "Habit": {
+      "title": "Habit",
+      "description": "Habit routine",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "habitName": { "type": "string" },
+        "streak": { "type": "number" },
+        "completedDates": { "type": "string" }
+      },
+      "required": ["userId", "habitName"]
+    },
+    "Analytics": {
+      "title": "Analytics",
+      "description": "Daily productivity score metrics",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "date": { "type": "string" },
+        "productivityScore": { "type": "number" },
+        "completedTasks": { "type": "number" },
+        "missedTasks": { "type": "number" }
+      },
+      "required": ["userId", "date"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Tasks"
+    },
+    "/habits/{habitId}": {
+      "schema": "Habit",
+      "description": "Habit routines"
+    },
+    "/analytics/{analyticsId}": {
+      "schema": "Analytics",
+      "description": "Productivity metrics analytics"
+    }
+  }
+}

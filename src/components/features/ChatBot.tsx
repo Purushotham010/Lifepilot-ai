@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bot, Send, X, Loader2 } from 'lucide-react';
 import { fetchAPI } from '../../lib/api';
+import Markdown from 'react-markdown';
 
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,8 +58,8 @@ export default function ChatBot() {
             )}
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`px-4 py-2 max-w-[85%] rounded-[14px] text-sm ${m.role === 'user' ? 'bg-bright-teal text-deep-space-violet font-medium rounded-br-none' : 'bg-rich-violet/30 text-off-white border border-rich-violet/60 rounded-bl-none'}`}>
-                  {m.text}
+                <div className={`px-4 py-2 max-w-[85%] rounded-[14px] text-sm ${m.role === 'user' ? 'bg-bright-teal text-deep-space-violet font-medium rounded-br-none' : 'bg-rich-violet/30 text-off-white border border-rich-violet/60 rounded-bl-none prose prose-invert prose-sm max-w-none'}`}>
+                  {m.role === 'user' ? m.text : <Markdown>{m.text}</Markdown>}
                 </div>
               </div>
             ))}
