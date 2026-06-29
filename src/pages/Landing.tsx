@@ -85,7 +85,7 @@ export default function Landing() {
           className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold tracking-wide mb-8"
         >
           <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-          <span>Next-Generation Productivity: Proactive AI Assistant</span>
+          <span>Smart Task Manager & AI Companion</span>
         </motion.div>
 
         <motion.h1 
