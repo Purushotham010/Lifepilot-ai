@@ -149,7 +149,7 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-1.5">
             <CheckCircle className="w-4 h-4 text-emerald-500" />
-            <span>Automatic Action Decomposition</span>
+            <span>One-Click AI Task Breakdown</span>
           </div>
         </motion.div>
       </section>
@@ -246,7 +246,7 @@ export default function Landing() {
                     "I notice you haven't started your video recording task yet. Based on historic trends, recording takes average of 2.5 hours. To prevent slipping past midnight, I recommend starting Focus Mode now."
                   </blockquote>
                   <p>
-                    It then automatically splits complex steps, prioritizes micro-actions, and helps you work smoothly without delay.
+                    It then instantly splits complex steps, prioritizes micro-actions, and helps you work smoothly without delay.
                   </p>
                 </div>
               </div>

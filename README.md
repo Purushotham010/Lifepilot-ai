@@ -6,6 +6,12 @@ Traditional productivity tools and to-do lists are entirely passive—they rely 
 
 LifePilot is an AI-powered productivity companion that shifts task management from passive tracking to active intervention, anticipating risks and helping you execute before time runs out.
 
+## 🎯 Problem It Solves
+LifePilot solves the core issue with traditional productivity apps: they are entirely passive. While other tools wait for you to check them, LifePilot actively monitors your deadlines, task complexity, and real-world calendar availability. When it detects a high risk of a missed deadline, it proactively steps in. It solves procrastination and "blank canvas" paralysis by instantly breaking overwhelming tasks into actionable micro-steps, adjusting your schedule dynamically, and offering a real-time interactive voice coach to guide you through roadblocks before time runs out.
+
+## 🚧 Challenges Faced
+One of the main challenges was accurately calculating the "Risk Score" for upcoming deadlines while factoring in the user's actual calendar availability, rather than just raw time until the due date. Integrating the Google Calendar API securely and matching it with Gemini's task decomposition required careful prompt engineering to ensure the AI generated structured, realistic micro-actions that fit into actual free time blocks. Additionally, implementing the real-time Voice Coach using the Deepgram API and Web MediaRecorder within a React environment posed challenges with state management and audio stream handling, which we overcame by building custom React hooks to seamlessly handle the transcription and Gemini API handoffs.
+
 ## 🌟 Key Features
 
 ### 1. Visual Risk Dashboard (In-App Triage)
