@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchAPI } from '../lib/api';
 import { useAuth } from '../lib/AuthContext';
-import { BrainCircuit, Loader2 } from 'lucide-react';
+import { BrainCircuit, Loader2, ArrowLeft } from 'lucide-react';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -32,10 +32,15 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-deep-space-violet py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-deep-space-violet py-12 px-4 sm:px-6 lg:px-8 relative">
+      <Link to="/" className="absolute top-6 left-6 flex items-center gap-2 text-sm text-slate-400 hover:text-bright-teal transition-colors" id="register-back-btn">
+        <ArrowLeft className="w-4 h-4" /> Back to Home
+      </Link>
       <div className="max-w-md w-full space-y-8 bg-deep-space-violet/40 p-10 rounded-[20px] shadow-none border border-rich-violet/60 backdrop-blur-md">
         <div className="text-center">
-          <BrainCircuit className="mx-auto h-12 w-12 text-bright-teal animate-pulse" />
+          <Link to="/" className="inline-block" id="register-logo-link">
+            <BrainCircuit className="mx-auto h-12 w-12 text-bright-teal hover:scale-105 transition-transform animate-pulse" />
+          </Link>
           <h2 className="mt-6 text-3xl font-bold text-off-white tracking-tight">Create an account</h2>
           <p className="mt-2 text-sm text-slate-400">Start your productivity journey</p>
         </div>
